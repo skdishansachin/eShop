@@ -23,7 +23,8 @@ public readonly record struct Money : IComparable<Money>
     {
         if (left.Currency != right.Currency)
             throw new InvalidOperationException(
-                $"Currency mismatch: Cannot operate on {left.Currency} and {right.Currency}.");
+                $"Currency mismatch: Cannot operate on {left.Currency} and {right.Currency}."
+            );
     }
 
     public static Money operator +(Money left, Money right)
@@ -38,9 +39,11 @@ public readonly record struct Money : IComparable<Money>
         return new Money(left.Amount - right.Amount, left.Currency);
     }
 
-    public static Money operator *(Money money, decimal factor) => new(money.Amount * factor, money.Currency);
+    public static Money operator *(Money money, decimal factor) =>
+        new(money.Amount * factor, money.Currency);
 
-    public static Money operator /(Money money, decimal divisor) => new(money.Amount / divisor, money.Currency);
+    public static Money operator /(Money money, decimal divisor) =>
+        new(money.Amount / divisor, money.Currency);
 
     public int CompareTo(Money other)
     {
@@ -49,9 +52,13 @@ public readonly record struct Money : IComparable<Money>
     }
 
     public static bool operator <(Money left, Money right) => left.CompareTo(right) < 0;
+
     public static bool operator >(Money left, Money right) => left.CompareTo(right) > 0;
+
     public static bool operator <=(Money left, Money right) => left.CompareTo(right) <= 0;
+
     public static bool operator >=(Money left, Money right) => left.CompareTo(right) >= 0;
 
-    public override string ToString() => $"{Amount.ToString("N2", CultureInfo.InvariantCulture)} {Currency}";
+    public override string ToString() =>
+        $"{Amount.ToString("N2", CultureInfo.InvariantCulture)} {Currency}";
 }
