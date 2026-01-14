@@ -4,12 +4,14 @@ using System.Globalization;
 
 public readonly record struct Money
 {
+    private const int CURRENCY_LENGHT = 3;
+
     public decimal Amount { get; }
     public string Currency { get; }
 
     private Money(decimal amount, string currency)
     {
-        if (string.IsNullOrWhiteSpace(currency) || currency.Length != 3)
+        if (string.IsNullOrWhiteSpace(currency) || currency.Length != CURRENCY_LENGHT)
             throw new ArgumentException("Currency must be a 3-letter ISO code.", nameof(currency));
 
         Amount = amount;
