@@ -1,4 +1,4 @@
-namespace eShop.Domain.ValueObjects;
+namespace eShop.Domain.SharedKernel.ValueObjects;
 
 using System.Globalization;
 
