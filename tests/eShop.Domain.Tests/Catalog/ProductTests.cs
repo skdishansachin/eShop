@@ -1,4 +1,5 @@
 using System.Reflection;
+
 using eShop.Domain.Catalog;
 using eShop.Domain.SharedKernel.ValueObjects;
 

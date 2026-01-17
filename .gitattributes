@@ -1,0 +1,5 @@
+# Force all text files to use LF (Linux) line endings
+* text=auto eol=lf
+*.cs text eol=lf
+*.csproj text eol=lf
+*.sln text eol=lf
