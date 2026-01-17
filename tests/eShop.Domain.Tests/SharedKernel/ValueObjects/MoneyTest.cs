@@ -58,7 +58,7 @@ public class MoneyTests
     public void Money_Create_WithNullCurrency_ThrowsArgumentException()
     {
         decimal amount = 100m;
-        string currency = null;
+        string currency = null!;
 
         Assert.Throws<ArgumentException>(() => Money.Create(amount, currency));
     }
