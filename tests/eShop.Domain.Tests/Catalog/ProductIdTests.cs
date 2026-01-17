@@ -1,8 +1,6 @@
 using System;
-
 using eShop.Domain.Catalog;
 using eShop.Domain.SharedKernel.ValueObjects;
-
 using Xunit;
 
 namespace eShop.Domain.Tests.Catalog;
