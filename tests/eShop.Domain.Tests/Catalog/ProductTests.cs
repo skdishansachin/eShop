@@ -261,6 +261,8 @@ public class ProductTests
         Money price2 = Money.Create(22m, "USD");
         Dictionary<ProductOptionId, OptionValueId> selections2 = new() { { color.Id, red.Id } };
 
-        Assert.Throws<InvalidOperationException>(() => product.AddVariant(sku2, price2, selections2));
+        Assert.Throws<InvalidOperationException>(() =>
+            product.AddVariant(sku2, price2, selections2)
+        );
     }
 }

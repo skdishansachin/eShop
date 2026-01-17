@@ -1,0 +1,8 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+# Format the staged files
+dotnet csharpier format ${staged}
+
+# Re-stage the fixed files so the formatting is included in the commit
+git add ${staged}
