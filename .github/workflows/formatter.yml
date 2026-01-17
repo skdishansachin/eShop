@@ -23,7 +23,7 @@ jobs:
       run: dotnet tool restore
 
     - name: CSharpier Check
-      run: dotnet csharpier --check .
+      run: dotnet csharpier check .
 
     - name: dotnet format Check
       run: dotnet format --verify-no-changes --no-restore
