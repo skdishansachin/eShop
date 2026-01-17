@@ -58,7 +58,9 @@ public sealed class Product : AggregateRoot
     {
         // Every option has exactly one value selected
         if (selections.Count != _options.Count)
-            throw new InvalidOperationException("A value must be selected for every product option.");
+            throw new InvalidOperationException(
+                "A value must be selected for every product option."
+            );
 
         foreach (var option in _options)
         {
