@@ -1,6 +1,0 @@
-<Project>
-  <Target Name="InstallHusky" BeforeTargets="Restore" Condition="'$(GITHUB_ACTIONS)' != 'true'">
-    <Exec Command="dotnet tool restore" />
-    <Exec Command="dotnet husky install" />
-  </Target>
-</Project>
