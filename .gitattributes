@@ -1,5 +1,9 @@
-# Force all text files to use LF (Linux) line endings
-* text=auto eol=lf
-*.cs text eol=lf
-*.csproj text eol=lf
-*.sln text eol=lf
+# Enforce LF for project/solution files
+*.sln     text eol=lf
+*.csproj  text eol=lf
+*.props   text eol=lf
+*.targets text eol=lf
+
+# C# source
+*.cs      text eol=lf
+
