@@ -1,4 +1,4 @@
-namespace eShop.Domain.Catalog;
+namespace eShop.Domain.SharedKernel.ValueObjects;
 
 public readonly record struct OptionValueId(Guid Value)
 {
