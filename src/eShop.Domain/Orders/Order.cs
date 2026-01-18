@@ -76,7 +76,7 @@ public sealed class Order : AggregateRoot
         }
 
         var currency = _items.First().PriceAtPurchase.Currency;
-        var totalAmount = _items.Sum(item => item.PriceAtPurchase.Amount);
+        var totalAmount = _items.Sum(item => item.TotalPrice.Amount);
 
         TotalPrice = Money.Create(totalAmount, currency);
     }
