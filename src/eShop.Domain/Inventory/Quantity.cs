@@ -17,14 +17,20 @@ public readonly record struct Quantity
     public static Quantity Zero => new Quantity(0);
 
     public static Quantity operator +(Quantity left, int right) => new Quantity(left.Value + right);
+
     public static Quantity operator -(Quantity left, int right) => new Quantity(left.Value - right);
 
-    public static Quantity operator +(Quantity left, Quantity right) => new Quantity(left.Value + right.Value);
-    public static Quantity operator -(Quantity left, Quantity right) => new Quantity(left.Value - right.Value);
+    public static Quantity operator +(Quantity left, Quantity right) =>
+        new Quantity(left.Value + right.Value);
+
+    public static Quantity operator -(Quantity left, Quantity right) =>
+        new Quantity(left.Value - right.Value);
 
     public static bool operator <(Quantity left, Quantity right) => left.Value < right.Value;
+
     public static bool operator >(Quantity left, Quantity right) => left.Value > right.Value;
 
     public static bool operator <=(Quantity left, Quantity right) => left.Value <= right.Value;
+
     public static bool operator >=(Quantity left, Quantity right) => left.Value >= right.Value;
 }

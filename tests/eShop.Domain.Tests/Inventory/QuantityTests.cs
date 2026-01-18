@@ -39,7 +39,7 @@ public class QuantityTests
         var result = quantity - 5;
         Assert.Equal(5, result.Value);
     }
-    
+
     [Fact]
     public void Subtraction_WithInt_ToNegative_ThrowsArgumentException()
     {
@@ -64,7 +64,7 @@ public class QuantityTests
         var result = q1 - q2;
         Assert.Equal(5, result.Value);
     }
-    
+
     [Fact]
     public void Subtraction_WithQuantity_ToNegative_ThrowsArgumentException()
     {
@@ -91,7 +91,7 @@ public class QuantityTests
         Assert.True(q10 >= q5);
         Assert.True(q10 >= Quantity.Create(10));
     }
-    
+
     [Fact]
     public void Quantity_Equality_WithSameValue_ReturnsTrue()
     {

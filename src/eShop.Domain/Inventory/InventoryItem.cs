@@ -1,12 +1,16 @@
 namespace eShop.Domain.Inventory;
 
-using eShop.Domain.SharedKernel.Abstractions;
 using eShop.Domain.Catalog;
+using eShop.Domain.SharedKernel.Abstractions;
 
 public sealed class InventoryItem : AggregateRoot
 {
-
-    private InventoryItem(InventoryItemId id, Sku sku, Quantity quantityOnHand, Quantity reservedQuantity)
+    private InventoryItem(
+        InventoryItemId id,
+        Sku sku,
+        Quantity quantityOnHand,
+        Quantity reservedQuantity
+    )
     {
         Id = id;
         Sku = sku;
@@ -21,8 +25,12 @@ public sealed class InventoryItem : AggregateRoot
 
     public Quantity AvailableQuantity => QuantityOnHand - ReservedQuantity;
 
-    public static InventoryItem Create(InventoryItemId id, Sku sku, Quantity quantityOnHand, Quantity reservedQuantity)
-        => new InventoryItem(id, sku, quantityOnHand, reservedQuantity);
+    public static InventoryItem Create(
+        InventoryItemId id,
+        Sku sku,
+        Quantity quantityOnHand,
+        Quantity reservedQuantity
+    ) => new InventoryItem(id, sku, quantityOnHand, reservedQuantity);
 
     public void SetSku(Sku sku) => Sku = sku;
 
@@ -34,7 +42,9 @@ public sealed class InventoryItem : AggregateRoot
     public void ReserveStock(Quantity quantity)
     {
         if (AvailableQuantity < quantity)
-            throw new InvalidOperationException($"Insufficient stock for SKU {Sku.Value}. Requested: {quantity}, Available: {AvailableQuantity}");
+            throw new InvalidOperationException(
+                $"Insufficient stock for SKU {Sku.Value}. Requested: {quantity}, Available: {AvailableQuantity}"
+            );
 
         ReservedQuantity += quantity;
     }
@@ -45,7 +55,9 @@ public sealed class InventoryItem : AggregateRoot
             throw new InvalidOperationException("Cannot ship more than what is reserved.");
 
         if (QuantityOnHand < quantity)
-            throw new InvalidOperationException("Physical stock discrepancy: cannot ship more than on hand.");
+            throw new InvalidOperationException(
+                "Physical stock discrepancy: cannot ship more than on hand."
+            );
 
         ReservedQuantity -= quantity;
         QuantityOnHand -= quantity;
