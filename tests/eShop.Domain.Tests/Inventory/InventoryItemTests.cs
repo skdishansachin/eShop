@@ -1,4 +1,4 @@
-using eShop.Domain.Catalog;
+using eShop.Domain.SharedKernel.ValueObjects;
 using eShop.Domain.Inventory;
 
 namespace eShop.Domain.Tests.Inventory;
