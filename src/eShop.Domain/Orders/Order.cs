@@ -53,6 +53,7 @@ public sealed class Order : AggregateRoot
 
     public void Confirm()
     {
+        EnsureStatus(OrderStatus.Pending);
         if (!_items.Any())
             throw new InvalidOperationException("Cannot confirm an empty order.");
 
