@@ -1,7 +1,7 @@
 namespace eShop.Domain.Inventory;
 
-using eShop.Domain.Catalog;
 using eShop.Domain.SharedKernel.Abstractions;
+using eShop.Domain.SharedKernel.ValueObjects;
 
 public sealed class InventoryItem : AggregateRoot
 {

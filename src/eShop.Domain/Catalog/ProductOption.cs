@@ -1,5 +1,7 @@
 namespace eShop.Domain.Catalog;
 
+using eShop.Domain.SharedKernel.ValueObjects;
+
 public sealed class ProductOption
 {
     internal ProductOption(ProductOptionId id, OptionName name)

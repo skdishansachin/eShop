@@ -1,5 +1,5 @@
-using eShop.Domain.Catalog;
 using eShop.Domain.Inventory;
+using eShop.Domain.SharedKernel.ValueObjects;
 
 namespace eShop.Domain.Tests.Inventory;
 
