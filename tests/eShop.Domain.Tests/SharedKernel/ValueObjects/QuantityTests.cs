@@ -1,6 +1,6 @@
 using eShop.Domain.SharedKernel.ValueObjects;
 
-namespace eShop.Domain.Tests.Inventory;
+namespace eShop.Domain.Tests.SharedKernel.ValueObjects;
 
 public class QuantityTests
 {

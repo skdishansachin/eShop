@@ -1,6 +1,6 @@
 using eShop.Domain.SharedKernel.ValueObjects;
 
-namespace eShop.Domain.Tests.Catalog;
+namespace eShop.Domain.Tests.SharedKernel.ValueObjects;
 
 public class OptionValueIdTests
 {
