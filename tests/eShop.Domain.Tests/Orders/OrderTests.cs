@@ -1,5 +1,5 @@
-using eShop.Domain.SharedKernel.ValueObjects;
 using eShop.Domain.Orders;
+using eShop.Domain.SharedKernel.ValueObjects;
 
 public class OrderTests
 {
@@ -84,7 +84,7 @@ public class OrderTests
         {
             OrderStatus.Shipped => CreateShippedOrder(),
             OrderStatus.Cancelled => CreateCanceledOrder(),
-            _ => throw new ArgumentException("Status not covered")
+            _ => throw new ArgumentException("Status not covered"),
         };
 
         Assert.Throws<InvalidOperationException>(() => order.Confirm());
@@ -110,12 +110,11 @@ public class OrderTests
         {
             OrderStatus.Pending => CreateOrder(),
             OrderStatus.Cancelled => CreateCanceledOrder(),
-            _ => throw new ArgumentException("Status not covered")
+            _ => throw new ArgumentException("Status not covered"),
         };
 
         Assert.Throws<InvalidOperationException>(() => order.Ship());
     }
-
 
     [Fact]
     public void Order_Cancel_WhenOrderIsPending_UpdateStatusToCancel()
@@ -134,7 +133,7 @@ public class OrderTests
         Order order = status switch
         {
             OrderStatus.Shipped => CreateShippedOrder(),
-            _ => throw new ArgumentException("Status not covered")
+            _ => throw new ArgumentException("Status not covered"),
         };
 
         Assert.Throws<InvalidOperationException>(() => order.Cancel());
@@ -144,9 +143,7 @@ public class OrderTests
 
     private Order CreateOrder()
     {
-        return Order.Create(
-            new OrderId(Guid.NewGuid()),
-            new CustomerId(Guid.NewGuid()));
+        return Order.Create(new OrderId(Guid.NewGuid()), new CustomerId(Guid.NewGuid()));
     }
 
     private Order CreateOrderWithItems()
