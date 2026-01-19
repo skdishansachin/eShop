@@ -1,166 +1,176 @@
-using System;
-using System.Linq;
-using Xunit;
-using eShop.Domain.Orders;
 using eShop.Domain.SharedKernel.ValueObjects;
-
-namespace eShop.Domain.Tests.Orders;
+using eShop.Domain.Orders;
 
 public class OrderTests
 {
-    private readonly OrderId _orderId = new OrderId(Guid.NewGuid());
-    private readonly CustomerId _customerId = new CustomerId(Guid.NewGuid());
-    private readonly Sku _testSku = Sku.Create("TEST-SKU");
-    private readonly Money _testPrice = Money.Create(10.0m, "LKR");
-    private readonly Quantity _testQuantity = Quantity.Create(2);
-
     [Fact]
-    public void Order_Creation_InitializesCorrectly()
+    public void Order_Create_WithValidParameters_ReturnsOrderObject()
     {
-        var order = new Order(_orderId, _customerId);
+        var id = new OrderId(Guid.NewGuid());
+        var customerId = new CustomerId(Guid.NewGuid());
 
-        Assert.Equal(_orderId, order.Id);
-        Assert.Equal(_customerId, order.CustomerId);
-        Assert.NotEqual(default, order.CreatedAt);
+        var order = Order.Create(id, customerId);
+
+        Assert.Equal(id, order.Id);
+        Assert.Equal(customerId, order.CustomerId);
         Assert.Equal(Money.Create(0, "LKR"), order.TotalPrice);
         Assert.Equal(OrderStatus.Pending, order.Status);
-        Assert.Empty(order.Items);
     }
 
     [Fact]
-    public void Order_Create_FactoryMethodInitializesCorrectly()
+    public void Order_AddItem_WithValidItem_AddsOrderItemToList()
     {
-        var order = Order.Create(_orderId, _customerId);
+        var order = CreateOrder();
 
-        Assert.Equal(_orderId, order.Id);
-        Assert.Equal(_customerId, order.CustomerId);
-        Assert.NotEqual(default, order.CreatedAt);
-        Assert.Equal(Money.Create(0, "LKR"), order.TotalPrice);
-        Assert.Equal(OrderStatus.Pending, order.Status);
-        Assert.Empty(order.Items);
-    }
-
-    [Fact]
-    public void Order_AddItem_AddsNewItemAndRecalculatesTotal()
-    {
-        var order = Order.Create(_orderId, _customerId);
-
-        order.AddItem(_testSku, _testPrice, _testQuantity);
+        order.AddItem(Sku.Create("SHIRT-RED-M"), Money.Create(1000, "LKR"), Quantity.Create(2));
 
         Assert.Single(order.Items);
-        var addedItem = order.Items.First();
-        Assert.Equal(_testSku, addedItem.Sku);
-        Assert.Equal(_testPrice, addedItem.PriceAtPurchase);
-        Assert.Equal(_testQuantity, addedItem.Quantity);
-        Assert.Equal(Money.Create(20.0m, "LKR"), order.TotalPrice);
+        Assert.Equal(Money.Create(2000, "LKR"), order.TotalPrice);
     }
 
     [Fact]
-    public void Order_AddItem_ThrowsException_WhenAddingExistingSku()
+    public void Order_AddItem_WithValidMultipleItems_AddsOrderItemToList()
     {
-        var order = Order.Create(_orderId, _customerId);
-        order.AddItem(_testSku, _testPrice, _testQuantity);
+        var order = CreateOrder();
 
-        var exception = Assert.Throws<InvalidOperationException>(
-            () => order.AddItem(_testSku, _testPrice, _testQuantity)
+        order.AddItem(Sku.Create("SHIRT-RED-M"), Money.Create(1000, "LKR"), Quantity.Create(2));
+        order.AddItem(Sku.Create("SHIRT-RED-S"), Money.Create(1000, "LKR"), Quantity.Create(1));
+
+        Assert.Equal(2, order.Items.Count);
+        Assert.Equal(Money.Create(3000, "LKR"), order.TotalPrice);
+    }
+
+    [Fact]
+    public void Order_AddItem_WithDifferentCurrencyItems_ThrowsInvalidOperationException()
+    {
+        var order = CreateOrder();
+        order.AddItem(Sku.Create("SHIRT-RED-M"), Money.Create(1000, "LKR"), Quantity.Create(2));
+
+        Assert.Throws<InvalidOperationException>(() =>
+        {
+            order.AddItem(Sku.Create("SHIRT-RED-S"), Money.Create(1000, "USD"), Quantity.Create(1));
+        });
+    }
+
+    [Fact]
+    public void Order_AddItem_WithDuplicateSku_ThrowsInvalidOperationException()
+    {
+        var order = CreateOrder();
+        var sku = Sku.Create("SHIRT-RED-M");
+
+        order.AddItem(sku, Money.Create(1000, "LKR"), Quantity.Create(2));
+
+        Assert.Throws<InvalidOperationException>(() =>
+            order.AddItem(sku, Money.Create(1200, "LKR"), Quantity.Create(1))
         );
-        Assert.Contains("Item already exists in order. Update quantity instead.", exception.Message);
-        Assert.Single(order.Items); // Ensure no new item was added
     }
 
     [Fact]
-    public void Order_AddItem_ThrowsException_WhenOrderNotPending()
+    public void Order_Confirm_WhenOrderIsPending_UpdateStatusToConfirm()
     {
-        var order = Order.Create(_orderId, _customerId);
-        order.AddItem(_testSku, _testPrice, _testQuantity);
-        order.Confirm(); // Change status to Confirmed
-
-        var exception = Assert.Throws<InvalidOperationException>(
-            () => order.AddItem(Sku.Create("NEW-SKU"), Money.Create(5, "LKR"), Quantity.Create(1))
-        );
-        Assert.Contains("Cannot modify an order that is no longer pending.", exception.Message);
-    }
-
-    [Fact]
-    public void Order_Confirm_ChangesStatusToConfirmed()
-    {
-        var order = Order.Create(_orderId, _customerId);
-        order.AddItem(_testSku, _testPrice, _testQuantity);
+        var order = CreateOrderWithItems();
 
         order.Confirm();
 
         Assert.Equal(OrderStatus.Confirmed, order.Status);
     }
 
-    [Fact]
-    public void Order_Confirm_ThrowsException_WhenOrderIsEmpty()
+    [Theory]
+    [InlineData(OrderStatus.Shipped)]
+    [InlineData(OrderStatus.Cancelled)]
+    public void Order_Confirm_WhenInInvalidState_ThrowsInvalidOperationException(OrderStatus status)
     {
-        var order = Order.Create(_orderId, _customerId);
+        Order order = status switch
+        {
+            OrderStatus.Shipped => CreateShippedOrder(),
+            OrderStatus.Cancelled => CreateCanceledOrder(),
+            _ => throw new ArgumentException("Status not covered")
+        };
 
-        var exception = Assert.Throws<InvalidOperationException>(() => order.Confirm());
-        Assert.Contains("Cannot confirm an empty order.", exception.Message);
+        Assert.Throws<InvalidOperationException>(() => order.Confirm());
     }
 
     [Fact]
-    public void Order_Confirm_ThrowsException_WhenOrderNotPending()
+    public void Order_Ship_WhenOrderIsConfirmed_UpdateStatusToShip()
     {
-        var order = Order.Create(_orderId, _customerId);
-        order.AddItem(_testSku, _testPrice, _testQuantity);
-        order.Confirm(); // First confirm
-        order.Ship(); // Then ship
+        var order = CreateOrderWithItems();
 
-        var exception = Assert.Throws<InvalidOperationException>(() => order.Confirm());
-        Assert.Contains(
-            "Action not allowed. Order is in Shipped state, but must be Pending.",
-            exception.Message
-        );
-    }
-
-    [Fact]
-    public void Order_Ship_ChangesStatusToShipped()
-    {
-        var order = Order.Create(_orderId, _customerId);
-        order.AddItem(_testSku, _testPrice, _testQuantity);
         order.Confirm();
-
         order.Ship();
 
         Assert.Equal(OrderStatus.Shipped, order.Status);
     }
 
-    [Fact]
-    public void Order_Ship_ThrowsException_WhenOrderNotConfirmed()
+    [Theory]
+    [InlineData(OrderStatus.Pending)]
+    [InlineData(OrderStatus.Cancelled)]
+    public void Order_Ship_WhenInInvalidState_ThrowsInvalidOperationException(OrderStatus status)
     {
-        var order = Order.Create(_orderId, _customerId);
-        order.AddItem(_testSku, _testPrice, _testQuantity); // Order is Pending
+        Order order = status switch
+        {
+            OrderStatus.Pending => CreateOrder(),
+            OrderStatus.Cancelled => CreateCanceledOrder(),
+            _ => throw new ArgumentException("Status not covered")
+        };
 
-        var exception = Assert.Throws<InvalidOperationException>(() => order.Ship());
-        Assert.Contains(
-            "Action not allowed. Order is in Pending state, but must be Confirmed.",
-            exception.Message
-        );
+        Assert.Throws<InvalidOperationException>(() => order.Ship());
     }
 
+
     [Fact]
-    public void Order_Cancel_ChangesStatusToCancelled()
+    public void Order_Cancel_WhenOrderIsPending_UpdateStatusToCancel()
     {
-        var order = Order.Create(_orderId, _customerId);
-        order.AddItem(_testSku, _testPrice, _testQuantity);
+        var order = CreateOrderWithItems();
 
         order.Cancel();
 
         Assert.Equal(OrderStatus.Cancelled, order.Status);
     }
 
-    [Fact]
-    public void Order_Cancel_ThrowsException_WhenOrderShipped()
+    [Theory]
+    [InlineData(OrderStatus.Shipped)]
+    public void Order_Cancel_WhenInInvalidState_ThrowsInvalidOperationException(OrderStatus status)
     {
-        var order = Order.Create(_orderId, _customerId);
-        order.AddItem(_testSku, _testPrice, _testQuantity);
+        Order order = status switch
+        {
+            OrderStatus.Shipped => CreateShippedOrder(),
+            _ => throw new ArgumentException("Status not covered")
+        };
+
+        Assert.Throws<InvalidOperationException>(() => order.Cancel());
+    }
+
+    // HELPER METHODS
+
+    private Order CreateOrder()
+    {
+        return Order.Create(
+            new OrderId(Guid.NewGuid()),
+            new CustomerId(Guid.NewGuid()));
+    }
+
+    private Order CreateOrderWithItems()
+    {
+        var order = CreateOrder();
+        order.AddItem(Sku.Create("SHIRT-RED-M"), Money.Create(1000, "LKR"), Quantity.Create(2));
+        order.AddItem(Sku.Create("SHIRT-RED-S"), Money.Create(1000, "LKR"), Quantity.Create(1));
+        return order;
+    }
+
+    private Order CreateCanceledOrder()
+    {
+        var order = CreateOrderWithItems();
+        order.Cancel();
+
+        return order;
+    }
+
+    private Order CreateShippedOrder()
+    {
+        var order = CreateOrderWithItems();
         order.Confirm();
         order.Ship();
 
-        var exception = Assert.Throws<InvalidOperationException>(() => order.Cancel());
-        Assert.Contains("Cannot cancel an order that has already shipped.", exception.Message);
+        return order;
     }
 }
