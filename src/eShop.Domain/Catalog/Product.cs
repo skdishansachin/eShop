@@ -1,8 +1,8 @@
 namespace eShop.Domain.Catalog;
 
+using eShop.Domain.Catalog.Events;
 using eShop.Domain.SharedKernel.Abstractions;
 using eShop.Domain.SharedKernel.ValueObjects;
-using eShop.Domain.Catalog.Events;
 
 public sealed class Product : AggregateRoot
 {
