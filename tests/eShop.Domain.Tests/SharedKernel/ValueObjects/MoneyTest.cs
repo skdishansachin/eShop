@@ -1,7 +1,4 @@
-using System;
-using System.Globalization;
 using eShop.Domain.SharedKernel.ValueObjects;
-using Xunit;
 
 namespace eShop.Domain.Tests.SharedKernel.ValueObjects;
 

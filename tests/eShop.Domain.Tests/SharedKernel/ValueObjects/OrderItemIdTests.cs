@@ -1,5 +1,7 @@
 using eShop.Domain.SharedKernel.ValueObjects;
 
+namespace eShop.Domain.Tests.SharedKernel.ValueObjects;
+
 public class OrderItemIdTests
 {
     [Fact]
