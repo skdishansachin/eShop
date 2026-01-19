@@ -32,15 +32,16 @@ public sealed class Order : AggregateRoot
                 "Cannot modify an order that is no longer pending."
             );
 
+        if (unitPrice.Currency != TotalPrice.Currency)
+            throw new InvalidOperationException("Currency mismatch.");
+
         var item = _items.FirstOrDefault(i => i.Sku == sku);
         if (item is not null) // Item already exists
             throw new InvalidOperationException(
                 "Item already exists in order. Update quantity instead."
             );
 
-        // Item does not exist, so add it
-        var orderItemId = new OrderItemId(Guid.NewGuid());
-        _items.Add(new OrderItem(orderItemId, sku, quantity, unitPrice));
+        _items.Add(new OrderItem(new OrderItemId(Guid.NewGuid()), sku, quantity, unitPrice));
 
         RecalculateTotal();
     }
