@@ -6,6 +6,7 @@ namespace eShop.Domain.Tests.Inventory;
 public class InventoryItemTests
 {
     private readonly InventoryItemId _id = new(Guid.NewGuid());
+    private readonly OrderId _orderId = new(Guid.NewGuid());
     private readonly Sku _sku = Sku.Create("TEST-SKU");
     private readonly Quantity _quantityOnHand = Quantity.Create(10);
     private readonly Quantity _reservedQuantity = Quantity.Create(2);
@@ -51,7 +52,7 @@ public class InventoryItemTests
         var item = InventoryItem.Create(_id, _sku, _quantityOnHand, _reservedQuantity);
         var quantityToReserve = Quantity.Create(3);
 
-        item.ReserveStock(quantityToReserve);
+        item.ReserveStock(_orderId, quantityToReserve);
 
         Assert.Equal(Quantity.Create(5), item.ReservedQuantity);
         Assert.Equal(Quantity.Create(5), item.AvailableQuantity);
@@ -64,7 +65,7 @@ public class InventoryItemTests
         var quantityToReserve = Quantity.Create(9);
 
         var ex = Assert.Throws<InvalidOperationException>(() =>
-            item.ReserveStock(quantityToReserve)
+            item.ReserveStock(_orderId, quantityToReserve)
         );
         Assert.Contains("Insufficient stock", ex.Message);
     }
