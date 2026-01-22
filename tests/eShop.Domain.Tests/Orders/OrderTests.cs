@@ -1,4 +1,5 @@
 using eShop.Domain.Orders;
+using eShop.Domain.Orders.Events;
 using eShop.Domain.SharedKernel.ValueObjects;
 
 public class OrderTests
@@ -15,6 +16,9 @@ public class OrderTests
         Assert.Equal(customerId, order.CustomerId);
         Assert.Equal(Money.Create(0, "LKR"), order.TotalPrice);
         Assert.Equal(OrderStatus.Pending, order.Status);
+
+        Assert.Single(order.DomainEvents);
+        Assert.Contains(new OrderCreated(order.Id, customerId), order.DomainEvents);
     }
 
     [Fact]
@@ -66,19 +70,20 @@ public class OrderTests
     }
 
     [Fact]
-    public void Order_Confirm_WhenOrderIsPending_UpdateStatusToConfirm()
+    public void Order_Paid_WhenOrderIsPending_UpdateStatusToPaid()
     {
         var order = CreateOrderWithItems();
 
-        order.Confirm();
+        order.Paid();
 
-        Assert.Equal(OrderStatus.Confirmed, order.Status);
+        Assert.Equal(OrderStatus.Paid, order.Status);
+        Assert.Contains(new OrderPaid(order.Id, order.TotalPrice), order.DomainEvents);
     }
 
     [Theory]
     [InlineData(OrderStatus.Shipped)]
     [InlineData(OrderStatus.Cancelled)]
-    public void Order_Confirm_WhenInInvalidState_ThrowsInvalidOperationException(OrderStatus status)
+    public void Order_Paid_WhenInInvalidState_ThrowsInvalidOperationException(OrderStatus status)
     {
         Order order = status switch
         {
@@ -87,15 +92,15 @@ public class OrderTests
             _ => throw new ArgumentException("Status not covered"),
         };
 
-        Assert.Throws<InvalidOperationException>(() => order.Confirm());
+        Assert.Throws<InvalidOperationException>(() => order.Paid());
     }
 
     [Fact]
-    public void Order_Ship_WhenOrderIsConfirmed_UpdateStatusToShip()
+    public void Order_Ship_WhenOrderIsPaided_UpdateStatusToShip()
     {
         var order = CreateOrderWithItems();
 
-        order.Confirm();
+        order.Paid();
         order.Ship();
 
         Assert.Equal(OrderStatus.Shipped, order.Status);
@@ -124,6 +129,7 @@ public class OrderTests
         order.Cancel();
 
         Assert.Equal(OrderStatus.Cancelled, order.Status);
+        Assert.Contains(new OrderCancelled(order.Id), order.DomainEvents);
     }
 
     [Theory]
@@ -138,8 +144,6 @@ public class OrderTests
 
         Assert.Throws<InvalidOperationException>(() => order.Cancel());
     }
-
-    // HELPER METHODS
 
     private Order CreateOrder()
     {
@@ -165,7 +169,7 @@ public class OrderTests
     private Order CreateShippedOrder()
     {
         var order = CreateOrderWithItems();
-        order.Confirm();
+        order.Paid();
         order.Ship();
 
         return order;
