@@ -1,5 +1,6 @@
 namespace eShop.Domain.Orders;
 
+using eShop.Domain.Orders.Events;
 using eShop.Domain.SharedKernel.Abstractions;
 using eShop.Domain.SharedKernel.ValueObjects;
 
@@ -10,7 +11,7 @@ public sealed class Order : AggregateRoot
         Id = id;
         CustomerId = customerId;
         CreatedAt = DateTimeOffset.UtcNow;
-        TotalPrice = Money.Create(0, "LKR");
+        TotalPrice = Money.Create(0, "LKR"); // TODO: Fix hardcoded currency
         Status = OrderStatus.Pending;
     }
 
@@ -23,7 +24,13 @@ public sealed class Order : AggregateRoot
     private readonly List<OrderItem> _items = new();
     public IReadOnlyCollection<OrderItem> Items => _items.AsReadOnly();
 
-    public static Order Create(OrderId id, CustomerId customerId) => new Order(id, customerId);
+    public static Order Create(OrderId id, CustomerId customerId)
+    {
+        var order = new Order(id, customerId);
+        order.RaiseEvent(new OrderCreated(id, customerId));
+
+        return order;
+    }
 
     public void AddItem(Sku sku, Money unitPrice, Quantity quantity)
     {
@@ -48,17 +55,19 @@ public sealed class Order : AggregateRoot
 
     public void Ship()
     {
-        EnsureStatus(OrderStatus.Confirmed);
+        EnsureStatus(OrderStatus.Paid);
         Status = OrderStatus.Shipped;
     }
 
-    public void Confirm()
+    public void Paid()
     {
         EnsureStatus(OrderStatus.Pending);
         if (!_items.Any())
-            throw new InvalidOperationException("Cannot confirm an empty order.");
+            throw new InvalidOperationException("Cannot paid an empty order.");
 
-        Status = OrderStatus.Confirmed;
+        Status = OrderStatus.Paid;
+
+        RaiseEvent(new OrderPaid(Id, TotalPrice));
     }
 
     public void Cancel()
@@ -67,6 +76,8 @@ public sealed class Order : AggregateRoot
             throw new InvalidOperationException("Cannot cancel an order that has already shipped.");
 
         Status = OrderStatus.Cancelled;
+
+        RaiseEvent(new OrderCancelled(Id));
     }
 
     private void RecalculateTotal()

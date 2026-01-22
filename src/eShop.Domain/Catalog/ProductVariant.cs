@@ -29,4 +29,15 @@ public sealed class ProductVariant
         // Checks if every ID in the incoming list exists in our internal list
         return other.All(id => _values.Contains(id));
     }
+
+    internal Money UpdatePrice(Money newPrice)
+    {
+        if (Price == newPrice)
+            return Price;
+
+        var oldPrice = Price;
+        Price = newPrice;
+
+        return oldPrice;
+    }
 }

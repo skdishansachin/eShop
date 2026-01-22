@@ -1,5 +1,6 @@
 namespace eShop.Domain.Catalog;
 
+using eShop.Domain.Catalog.Events;
 using eShop.Domain.SharedKernel.Abstractions;
 using eShop.Domain.SharedKernel.ValueObjects;
 
@@ -47,8 +48,14 @@ public sealed class Product : AggregateRoot
     private readonly List<ProductVariant> _variants = new();
     public IReadOnlyCollection<ProductVariant> Variants => _variants.AsReadOnly();
 
-    public static Product Create(ProductId id, string title, string description) =>
-        new Product(id, title, description);
+    public static Product Create(ProductId id, string title, string description)
+    {
+        var product = new Product(id, title, description);
+
+        product.RaiseEvent(new ProductCreated(product.Id, product.Title));
+
+        return product;
+    }
 
     public ProductVariant AddVariant(
         Sku sku,
@@ -91,6 +98,8 @@ public sealed class Product : AggregateRoot
 
         _variants.Add(variant);
 
+        RaiseEvent(new ProductVariantAdded(Id, variant.Id, variant.Sku));
+
         return variant;
     }
 
@@ -128,5 +137,13 @@ public sealed class Product : AggregateRoot
         option.AddValue(value);
 
         return value;
+    }
+
+    public void UpdateVariantPrice(ProductVariantId id, Money newPrice)
+    {
+        var variant = _variants.Single(v => v.Id == id);
+        var oldPrice = variant.UpdatePrice(newPrice);
+
+        RaiseEvent(new ProductPriceChanged(Id, oldPrice, newPrice));
     }
 }
