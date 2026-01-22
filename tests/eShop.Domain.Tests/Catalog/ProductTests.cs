@@ -1,4 +1,5 @@
 using eShop.Domain.Catalog;
+using eShop.Domain.Catalog.Events;
 using eShop.Domain.SharedKernel.ValueObjects;
 
 namespace eShop.Domain.Tests.Catalog;
@@ -17,6 +18,8 @@ public class ProductTests
         Assert.Equal(id, product.Id);
         Assert.Equal(title, product.Title);
         Assert.Equal(description, product.Description);
+        Assert.Single(product.DomainEvents);
+        Assert.Contains(new ProductCreated(product.Id, title), product.DomainEvents);
     }
 
     [Theory]
@@ -180,6 +183,17 @@ public class ProductTests
 
         Assert.Contains(variant1, product.Variants);
         Assert.Contains(variant2, product.Variants);
+
+        Assert.Equal(3, product.DomainEvents.Count);
+        Assert.Contains(new ProductCreated(product.Id, product.Title), product.DomainEvents);
+        Assert.Contains(
+            new ProductVariantAdded(product.Id, variant1.Id, variant1.Sku),
+            product.DomainEvents
+        );
+        Assert.Contains(
+            new ProductVariantAdded(product.Id, variant2.Id, variant2.Sku),
+            product.DomainEvents
+        );
     }
 
     [Fact]
