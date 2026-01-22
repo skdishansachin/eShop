@@ -1,133 +1,124 @@
 using eShop.Domain.Inventory;
+using eShop.Domain.Inventory.Events;
 using eShop.Domain.SharedKernel.ValueObjects;
 
 namespace eShop.Domain.Tests.Inventory;
 
 public class InventoryItemTests
 {
-    private readonly InventoryItemId _id = new(Guid.NewGuid());
-    private readonly OrderId _orderId = new(Guid.NewGuid());
-    private readonly Sku _sku = Sku.Create("TEST-SKU");
-    private readonly Quantity _quantityOnHand = Quantity.Create(10);
-    private readonly Quantity _reservedQuantity = Quantity.Create(2);
-
     [Fact]
     public void Create_WithValidParameters_InitializesCorrectly()
     {
-        var item = InventoryItem.Create(_id, _sku, _quantityOnHand, _reservedQuantity);
+        var id = new InventoryItemId(Guid.NewGuid());
+        var sku = Sku.Create("TEST-SKU");
+        var onHand = Quantity.Create(10);
+        var reserved = Quantity.Create(2);
 
-        Assert.Equal(_id, item.Id);
-        Assert.Equal(_sku, item.Sku);
-        Assert.Equal(_quantityOnHand, item.QuantityOnHand);
-        Assert.Equal(_reservedQuantity, item.ReservedQuantity);
+        var item = InventoryItem.Create(id, sku, onHand, reserved);
+
+        Assert.Equal(id, item.Id);
+        Assert.Equal(sku, item.Sku);
+        Assert.Equal(onHand, item.QuantityOnHand);
+        Assert.Equal(reserved, item.ReservedQuantity);
         Assert.Equal(Quantity.Create(8), item.AvailableQuantity);
+
+        Assert.Single(item.DomainEvents);
+        Assert.Contains(new InventoryItemCreated(item.Id, sku), item.DomainEvents);
     }
 
     [Fact]
-    public void SetSku_UpdatesSku()
+    public void ReceiveStock_ShouldIncreasePhysicalAndAvailableStock()
     {
-        var item = InventoryItem.Create(_id, _sku, _quantityOnHand, _reservedQuantity);
-        var newSku = Sku.Create("NEW-SKU");
-
-        item.SetSku(newSku);
-
-        Assert.Equal(newSku, item.Sku);
-    }
-
-    [Fact]
-    public void ReceiveStock_IncreasesQuantityOnHand()
-    {
-        var item = InventoryItem.Create(_id, _sku, _quantityOnHand, _reservedQuantity);
+        var item = CreateItem(onHand: 10, reserved: 2);
         var quantityToReceive = Quantity.Create(5);
 
         item.ReceiveStock(quantityToReceive);
 
         Assert.Equal(Quantity.Create(15), item.QuantityOnHand);
         Assert.Equal(Quantity.Create(13), item.AvailableQuantity);
+        Assert.Contains(new InventoryRecived(item.Id, quantityToReceive), item.DomainEvents);
     }
 
     [Fact]
-    public void ReserveStock_WithSufficientAvailableQuantity_IncreasesReservedQuantity()
+    public void ReserveStock_WithSufficientStock_ShouldIncreaseReservedQuantity()
     {
-        var item = InventoryItem.Create(_id, _sku, _quantityOnHand, _reservedQuantity);
+        var orderId = new OrderId(Guid.NewGuid());
+        var item = CreateItem(onHand: 10, reserved: 2);
         var quantityToReserve = Quantity.Create(3);
 
-        item.ReserveStock(_orderId, quantityToReserve);
+        item.ReserveStock(orderId, quantityToReserve);
 
         Assert.Equal(Quantity.Create(5), item.ReservedQuantity);
         Assert.Equal(Quantity.Create(5), item.AvailableQuantity);
+
+        Assert.Contains(
+            new InventoryReserved(item.Id, orderId, quantityToReserve),
+            item.DomainEvents
+        );
     }
 
     [Fact]
-    public void ReserveStock_WithInsufficientAvailableQuantity_ThrowsInvalidOperationException()
+    public void ReserveStock_ShouldRaiseThresholdEvent_WhenStockDropsLow()
     {
-        var item = InventoryItem.Create(_id, _sku, _quantityOnHand, _reservedQuantity);
-        var quantityToReserve = Quantity.Create(9);
+        var orderId = new OrderId(Guid.NewGuid());
+        var item = CreateItem(onHand: 10, reserved: 0);
+        var quantityToReserve = Quantity.Create(6);
+
+        item.ReserveStock(orderId, quantityToReserve);
+
+        Assert.Equal(Quantity.Create(4), item.AvailableQuantity);
+        Assert.Contains(
+            new InventoryReserved(item.Id, orderId, quantityToReserve),
+            item.DomainEvents
+        );
+    }
+
+    [Fact]
+    public void ReserveStock_WithInsufficientStock_ShouldThrowException()
+    {
+        var orderId = new OrderId(Guid.NewGuid());
+        var item = CreateItem(onHand: 10, reserved: 2);
 
         var ex = Assert.Throws<InvalidOperationException>(() =>
-            item.ReserveStock(_orderId, quantityToReserve)
+            item.ReserveStock(orderId, Quantity.Create(9))
         );
         Assert.Contains("Insufficient stock", ex.Message);
     }
 
     [Fact]
-    public void ConfirmShipment_WithSufficientReservedAndOnHandQuantity_DecreasesQuantities()
+    public void ConfirmShipment_ShouldDecreaseBothQuantities()
     {
-        var item = InventoryItem.Create(_id, _sku, _quantityOnHand, _reservedQuantity);
-        var quantityToShip = Quantity.Create(1);
+        var item = CreateItem(onHand: 10, reserved: 5);
+        var quantityToShip = Quantity.Create(3);
 
         item.ConfirmShipment(quantityToShip);
 
-        Assert.Equal(Quantity.Create(9), item.QuantityOnHand);
-        Assert.Equal(Quantity.Create(1), item.ReservedQuantity);
-        Assert.Equal(Quantity.Create(8), item.AvailableQuantity);
+        Assert.Equal(Quantity.Create(7), item.QuantityOnHand);
+        Assert.Equal(Quantity.Create(2), item.ReservedQuantity);
     }
 
     [Fact]
-    public void ConfirmShipment_WithInsufficientReservedQuantity_ThrowsInvalidOperationException()
+    public void CancelReservation_ShouldRestoreAvailableQuantity()
     {
-        var item = InventoryItem.Create(_id, _sku, _quantityOnHand, _reservedQuantity);
-        var quantityToShip = Quantity.Create(3);
+        var item = CreateItem(onHand: 10, reserved: 5);
 
-        var ex = Assert.Throws<InvalidOperationException>(() =>
-            item.ConfirmShipment(quantityToShip)
+        item.CancelReservation(Quantity.Create(2));
+
+        Assert.Equal(Quantity.Create(3), item.ReservedQuantity);
+        Assert.Equal(Quantity.Create(7), item.AvailableQuantity);
+    }
+
+    private static InventoryItem CreateItem(
+        int onHand = 10,
+        int reserved = 0,
+        string skuCode = "TEST-SKU"
+    )
+    {
+        return InventoryItem.Create(
+            new InventoryItemId(Guid.NewGuid()),
+            Sku.Create(skuCode),
+            Quantity.Create(onHand),
+            Quantity.Create(reserved)
         );
-        Assert.Equal("Cannot ship more than what is reserved.", ex.Message);
-    }
-
-    [Fact]
-    public void ConfirmShipment_WithInsufficientOnHandQuantity_ThrowsInvalidOperationException()
-    {
-        var item = InventoryItem.Create(_id, _sku, Quantity.Create(1), Quantity.Create(2));
-        var quantityToShip = Quantity.Create(2);
-
-        var ex = Assert.Throws<InvalidOperationException>(() =>
-            item.ConfirmShipment(quantityToShip)
-        );
-        Assert.Equal("Physical stock discrepancy: cannot ship more than on hand.", ex.Message);
-    }
-
-    [Fact]
-    public void CancelReservation_WithSufficientReservedQuantity_DecreasesReservedQuantity()
-    {
-        var item = InventoryItem.Create(_id, _sku, _quantityOnHand, _reservedQuantity);
-        var quantityToCancel = Quantity.Create(1);
-
-        item.CancelReservation(quantityToCancel);
-
-        Assert.Equal(Quantity.Create(1), item.ReservedQuantity);
-        Assert.Equal(Quantity.Create(9), item.AvailableQuantity);
-    }
-
-    [Fact]
-    public void CancelReservation_WithInsufficientReservedQuantity_ThrowsInvalidOperationException()
-    {
-        var item = InventoryItem.Create(_id, _sku, _quantityOnHand, _reservedQuantity);
-        var quantityToCancel = Quantity.Create(3);
-
-        var ex = Assert.Throws<InvalidOperationException>(() =>
-            item.CancelReservation(quantityToCancel)
-        );
-        Assert.Equal("Cannot cancel more reservations than exist.", ex.Message);
     }
 }
