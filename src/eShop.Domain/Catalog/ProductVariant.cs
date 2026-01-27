@@ -18,8 +18,11 @@ public sealed class ProductVariant
     public Sku Sku { get; private set; }
     public Money Price { get; private set; }
 
-    private readonly List<OptionValueId> _values = new();
+    private List<OptionValueId> _values { get; } = new();
     public IReadOnlyCollection<OptionValueId> Values => _values.AsReadOnly();
+
+    private List<ProductVariantSelection> _selections { get; } = new();
+    public IReadOnlyCollection<ProductVariantSelection> Selections => _selections.AsReadOnly();
 
     internal bool HasSameSelections(IEnumerable<OptionValueId> other)
     {
