@@ -42,6 +42,27 @@ namespace eShop.Infrastructure.Presistence.Migrations
                     b.ToTable("Products", "Catalog");
                 });
 
+            modelBuilder.Entity("eShop.Domain.Inventory.InventoryItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("QuantityOnHand")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ReservedQuantity")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Sku")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("InventoryItem", "Inventory");
+                });
+
             modelBuilder.Entity("eShop.Domain.Catalog.Product", b =>
                 {
                     b.OwnsMany("eShop.Domain.Catalog.ProductOption", "Options", b1 =>
