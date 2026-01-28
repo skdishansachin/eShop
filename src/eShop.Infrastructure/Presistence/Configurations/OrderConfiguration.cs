@@ -47,7 +47,8 @@ public sealed class OrderConfiguration : IEntityTypeConfiguration<Order>
                     .HasConversion(sku => sku.Value, value => Sku.Create(value))
                     .IsRequired();
 
-                items.Property(i => i.Quantity)
+                items
+                    .Property(i => i.Quantity)
                     .HasConversion(quantity => quantity.Value, value => Quantity.Create(value))
                     .IsRequired();
 
