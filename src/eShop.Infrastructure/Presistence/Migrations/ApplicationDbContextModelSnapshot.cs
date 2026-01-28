@@ -63,6 +63,29 @@ namespace eShop.Infrastructure.Presistence.Migrations
                     b.ToTable("InventoryItem", "Inventory");
                 });
 
+            modelBuilder.Entity("eShop.Domain.Orders.Order", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<decimal>("TotalPrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Orders", "Sales");
+                });
+
             modelBuilder.Entity("eShop.Domain.Catalog.Product", b =>
                 {
                     b.OwnsMany("eShop.Domain.Catalog.ProductOption", "Options", b1 =>
@@ -165,6 +188,39 @@ namespace eShop.Infrastructure.Presistence.Migrations
                     b.Navigation("Options");
 
                     b.Navigation("Variants");
+                });
+
+            modelBuilder.Entity("eShop.Domain.Orders.Order", b =>
+                {
+                    b.OwnsMany("eShop.Domain.Orders.OrderItem", "Items", b1 =>
+                        {
+                            b1.Property<Guid>("Id")
+                                .HasColumnType("uuid");
+
+                            b1.Property<Guid>("OrderId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<decimal>("PriceAtPurchase")
+                                .HasColumnType("decimal(18,2)");
+
+                            b1.Property<int>("Quantity")
+                                .HasColumnType("integer");
+
+                            b1.Property<string>("Sku")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.HasKey("Id");
+
+                            b1.HasIndex("OrderId");
+
+                            b1.ToTable("OrderItems", "Sales");
+
+                            b1.WithOwner()
+                                .HasForeignKey("OrderId");
+                        });
+
+                    b.Navigation("Items");
                 });
 #pragma warning restore 612, 618
         }
