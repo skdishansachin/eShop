@@ -11,8 +11,10 @@ public sealed class Product : AggregateRoot
 
     private Product()
     {
-        Title = null!;
-        Description = null!;
+        // Title = null!;
+        // Description = null!;
+        // _options = new List<ProductOption>();
+        // _variants = new List<ProductVariant>();
     }
 
     private Product(ProductId id, string title, string description)
@@ -42,10 +44,10 @@ public sealed class Product : AggregateRoot
     public string Title { get; private set; }
     public string Description { get; private set; }
 
-    private readonly List<ProductOption> _options = new();
+    private List<ProductOption> _options { get; } = new();
     public IReadOnlyCollection<ProductOption> Options => _options.AsReadOnly();
 
-    private readonly List<ProductVariant> _variants = new();
+    private List<ProductVariant> _variants { get; } = new();
     public IReadOnlyCollection<ProductVariant> Variants => _variants.AsReadOnly();
 
     public static Product Create(ProductId id, string title, string description)

@@ -4,6 +4,8 @@ using eShop.Domain.SharedKernel.ValueObjects;
 
 public sealed class OrderItem
 {
+    private OrderItem() { }
+
     internal OrderItem(OrderItemId id, Sku sku, Quantity quantity, Money unitPrice)
     {
         Id = id;

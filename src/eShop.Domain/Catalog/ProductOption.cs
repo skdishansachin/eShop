@@ -13,7 +13,7 @@ public sealed class ProductOption
     public ProductOptionId Id { get; }
     public OptionName Name { get; private set; }
 
-    private readonly List<OptionValue> _values = new();
+    private List<OptionValue> _values { get; } = new();
     public IReadOnlyCollection<OptionValue> Values => _values.AsReadOnly();
 
     public void AddValue(OptionValue option)
