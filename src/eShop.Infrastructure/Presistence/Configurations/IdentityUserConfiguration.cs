@@ -17,7 +17,6 @@ public sealed class IdentityUserConfiguration : IEntityTypeConfiguration<Applica
         builder.Property(u => u.Email).IsRequired();
         builder.HasIndex(u => u.Email).IsUnique();
 
-        builder.Property(u => u.UserName)
-            .IsRequired();
+        builder.Property(u => u.UserName).IsRequired();
     }
 }

@@ -9,7 +9,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace eShop.Infrastructure.Presistence;
 
-public sealed class ApplicationDbContext : IdentityDbContext<ApplicationUser, IdentityRole<UserId>, UserId>
+public sealed class ApplicationDbContext
+    : IdentityDbContext<ApplicationUser, IdentityRole<UserId>, UserId>
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options) { }

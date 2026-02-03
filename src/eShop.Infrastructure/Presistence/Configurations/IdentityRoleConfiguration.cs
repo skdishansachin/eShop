@@ -5,8 +5,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace eShop.Infrastructure.Presistence.Configurations;
 
-public sealed class IdentityRoleConfiguration
-    : IEntityTypeConfiguration<IdentityRole<UserId>>
+public sealed class IdentityRoleConfiguration : IEntityTypeConfiguration<IdentityRole<UserId>>
 {
     public void Configure(EntityTypeBuilder<IdentityRole<UserId>> builder)
     {
@@ -14,10 +13,6 @@ public sealed class IdentityRoleConfiguration
 
         builder.HasKey(r => r.Id);
 
-        builder.Property(r => r.Id)
-            .HasConversion(
-                id => id.Value,
-                value => new UserId(value)
-            );
+        builder.Property(r => r.Id).HasConversion(id => id.Value, value => new UserId(value));
     }
 }
