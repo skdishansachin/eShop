@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "eShop.Domain.Tests", "tests
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "eShop.Infrastructure", "src\eShop.Infrastructure\eShop.Infrastructure.csproj", "{58D3FA6C-8E3C-4C6D-B464-DDBEF904B199}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "eShop.Application", "src\eShop.Application\eShop.Application.csproj", "{113A67FB-4282-4FFB-A609-E25F14BB7715}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -59,6 +61,18 @@ Global
 		{58D3FA6C-8E3C-4C6D-B464-DDBEF904B199}.Release|x64.Build.0 = Release|Any CPU
 		{58D3FA6C-8E3C-4C6D-B464-DDBEF904B199}.Release|x86.ActiveCfg = Release|Any CPU
 		{58D3FA6C-8E3C-4C6D-B464-DDBEF904B199}.Release|x86.Build.0 = Release|Any CPU
+		{113A67FB-4282-4FFB-A609-E25F14BB7715}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{113A67FB-4282-4FFB-A609-E25F14BB7715}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{113A67FB-4282-4FFB-A609-E25F14BB7715}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{113A67FB-4282-4FFB-A609-E25F14BB7715}.Debug|x64.Build.0 = Debug|Any CPU
+		{113A67FB-4282-4FFB-A609-E25F14BB7715}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{113A67FB-4282-4FFB-A609-E25F14BB7715}.Debug|x86.Build.0 = Debug|Any CPU
+		{113A67FB-4282-4FFB-A609-E25F14BB7715}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{113A67FB-4282-4FFB-A609-E25F14BB7715}.Release|Any CPU.Build.0 = Release|Any CPU
+		{113A67FB-4282-4FFB-A609-E25F14BB7715}.Release|x64.ActiveCfg = Release|Any CPU
+		{113A67FB-4282-4FFB-A609-E25F14BB7715}.Release|x64.Build.0 = Release|Any CPU
+		{113A67FB-4282-4FFB-A609-E25F14BB7715}.Release|x86.ActiveCfg = Release|Any CPU
+		{113A67FB-4282-4FFB-A609-E25F14BB7715}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -67,5 +81,6 @@ Global
 		{9B45BB35-95C3-45D0-BB92-7A2B83BAEE7F} = {84D3E13E-CF6A-4FC1-B2B9-ACDE193E869E}
 		{B6F76F68-762B-484D-AB06-45973F1A12DD} = {38B96335-67A2-4C2B-B0B6-016395BFE5CF}
 		{58D3FA6C-8E3C-4C6D-B464-DDBEF904B199} = {84D3E13E-CF6A-4FC1-B2B9-ACDE193E869E}
+		{113A67FB-4282-4FFB-A609-E25F14BB7715} = {84D3E13E-CF6A-4FC1-B2B9-ACDE193E869E}
 	EndGlobalSection
 EndGlobal
