@@ -4,5 +4,4 @@ using MediatR;
 
 namespace eShop.Applcation.Catalog.Queries;
 
-public sealed record GetProductByIdQuery(ProductId Id)
-    : IRequest<Product>;
+public sealed record GetProductByIdQuery(ProductId Id) : IRequest<Product>;

@@ -6,7 +6,6 @@ namespace eShop.Infrastructure.Presistence.Repositories;
 
 public sealed class ProductRepository : IProductRepository
 {
-
     private ApplicationDbContext _context;
 
     public ProductRepository(ApplicationDbContext context)
@@ -19,9 +18,11 @@ public sealed class ProductRepository : IProductRepository
         await _context.Products.AddAsync(product, cancellationToken);
     }
 
-    public async Task<Product?> FindByIdAsync(ProductId id, CancellationToken cancellationToken = default)
+    public async Task<Product?> FindByIdAsync(
+        ProductId id,
+        CancellationToken cancellationToken = default
+    )
     {
-        return await _context.Products
-            .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
+        return await _context.Products.FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
     }
 }

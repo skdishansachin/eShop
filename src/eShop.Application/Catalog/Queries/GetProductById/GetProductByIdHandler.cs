@@ -12,7 +12,10 @@ public sealed class GetProductByIdHandler : IRequestHandler<GetProductByIdQuery,
         _repository = repository;
     }
 
-    public async Task<Product?> Handle(GetProductByIdQuery request, CancellationToken cancellationToken)
+    public async Task<Product?> Handle(
+        GetProductByIdQuery request,
+        CancellationToken cancellationToken
+    )
     {
         return await _repository.FindByIdAsync(request.Id, cancellationToken);
     }
