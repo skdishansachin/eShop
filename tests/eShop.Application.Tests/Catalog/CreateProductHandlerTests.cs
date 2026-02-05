@@ -22,7 +22,6 @@ public class CreateProductHandlerTests
     [Fact]
     public async Task Handle_ShouldCreateProductWithoutVariantAndReturnProductId_WhenOnlyTitleAndDescriptionAreProvided()
     {
-        // Arrange
         var command = new CreateProductCommand("Test Product", "Description for test product");
         var cancellationToken = CancellationToken.None;
 
@@ -31,10 +30,8 @@ public class CreateProductHandlerTests
             .Returns(Task.CompletedTask);
         _unitOfWorkMock.Setup(u => u.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
 
-        // Act
         var result = await _handler.Handle(command, cancellationToken);
 
-        // Assert
         Assert.IsType<ProductId>(result);
         _productRepositoryMock.Verify(
             r =>
@@ -53,7 +50,6 @@ public class CreateProductHandlerTests
     [Fact]
     public async Task Handle_ShouldCreateProductWithVariantAndReturnProductId_WhenPriceAndSkuAreProvided()
     {
-        // Arrange
         var price = Money.Create(100, "USD");
         var sku = Sku.Create("SKU123");
         var command = new CreateProductCommand("Test Product With Variant", "Description", price, sku);
@@ -67,10 +63,8 @@ public class CreateProductHandlerTests
             .Returns(Task.CompletedTask);
         _unitOfWorkMock.Setup(u => u.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
 
-        // Act
         var result = await _handler.Handle(command, cancellationToken);
 
-        // Assert
         Assert.IsType<ProductId>(result);
         _productRepositoryMock.Verify(
             r =>
@@ -91,12 +85,10 @@ public class CreateProductHandlerTests
     [Fact]
     public async Task Handle_ShouldThrowArgumentException_WhenPriceIsProvidedButSkuIsMissing()
     {
-        // Arrange
         var price = Money.Create(100, "USD");
         var command = new CreateProductCommand("Test Product", "Description", price, null);
         var cancellationToken = CancellationToken.None;
 
-        // Act & Assert
         var exception = await Assert.ThrowsAsync<ArgumentException>(() => _handler.Handle(command, cancellationToken));
         Assert.Equal("SKU is required for simple products.", exception.Message);
         _productRepositoryMock.Verify(r => r.AddAsync(It.IsAny<Product>(), It.IsAny<CancellationToken>()), Times.Never);
@@ -107,7 +99,6 @@ public class CreateProductHandlerTests
     [Fact]
     public async Task Handle_ShouldThrowInvalidOperationException_WhenPriceAndExistingSkuAreProvided()
     {
-        // Arrange
         var price = Money.Create(100, "USD");
         var sku = Sku.Create("SKU456");
         var command = new CreateProductCommand("Test Product", "Description", price, sku);
@@ -118,7 +109,6 @@ public class CreateProductHandlerTests
             .Setup(r => r.FindBySkuAsync(sku, cancellationToken))
             .ReturnsAsync(existingProduct); // SKU already exists
 
-        // Act & Assert
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => _handler.Handle(command, cancellationToken));
         Assert.Equal($"SKU {sku} already exists.", exception.Message);
         _productRepositoryMock.Verify(r => r.AddAsync(It.IsAny<Product>(), It.IsAny<CancellationToken>()), Times.Never);
