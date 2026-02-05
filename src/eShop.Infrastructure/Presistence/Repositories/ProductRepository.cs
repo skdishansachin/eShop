@@ -25,4 +25,9 @@ public sealed class ProductRepository : IProductRepository
     {
         return await _context.Products.FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
     }
+
+    public async Task<Product?> FindBySkuAsync(Sku sku, CancellationToken cancellationToken)
+    {
+        return await _context.Products.SingleOrDefaultAsync(p => p.Variants.Any(v => v.Sku == sku), cancellationToken);
+    }
 }

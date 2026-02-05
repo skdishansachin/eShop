@@ -27,6 +27,22 @@ public sealed class CreateProductHandler : IRequestHandler<CreateProductCommand,
             request.Description
         );
 
+        if (request.Price.HasValue)
+        {
+            if (!request.Sku.HasValue)
+                throw new ArgumentException("SKU is required for simple products.");
+
+            var existing = await _repository.FindBySkuAsync(request.Sku.Value, cancellationToken);
+            if (existing is not null)
+                throw new InvalidOperationException($"SKU {request.Sku.Value} already exists.");
+
+            product.AddVariant(
+                request.Sku.Value,
+                request.Price.Value,
+                new Dictionary<ProductOptionId, OptionValueId>()
+            );
+        }
+
         await _repository.AddAsync(product, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
