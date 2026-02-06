@@ -31,7 +31,7 @@ public class AddOptionValueHandlerTests
 
         var product = Product.Create(productId, "Test Product", "Description");
         product.AddOption(productOptionId, optionName); // Add the option first
-        
+
         _productRepositoryMock
             .Setup(r => r.FindByIdAsync(productId, cancellationToken))
             .ReturnsAsync(product);
@@ -39,9 +39,12 @@ public class AddOptionValueHandlerTests
 
         await _handler.Handle(command, cancellationToken);
 
-        _productRepositoryMock.Verify(r => r.FindByIdAsync(productId, cancellationToken), Times.Once);
+        _productRepositoryMock.Verify(
+            r => r.FindByIdAsync(productId, cancellationToken),
+            Times.Once
+        );
         _unitOfWorkMock.Verify(u => u.SaveChangesAsync(cancellationToken), Times.Once);
-        
+
         var addedOption = product.Options.FirstOrDefault(o => o.Id == productOptionId);
         Assert.NotNull(addedOption);
         Assert.Single(addedOption.Values);
@@ -61,11 +64,14 @@ public class AddOptionValueHandlerTests
             .Setup(r => r.FindByIdAsync(productId, cancellationToken))
             .ReturnsAsync((Product?)null);
 
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
-            () => _handler.Handle(command, cancellationToken)
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            _handler.Handle(command, cancellationToken)
         );
         Assert.Equal("Product not found.", exception.Message);
-        _productRepositoryMock.Verify(r => r.FindByIdAsync(productId, cancellationToken), Times.Once);
+        _productRepositoryMock.Verify(
+            r => r.FindByIdAsync(productId, cancellationToken),
+            Times.Once
+        );
         _unitOfWorkMock.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 }

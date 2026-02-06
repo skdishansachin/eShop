@@ -25,6 +25,5 @@ public sealed class AddProductOptionHandler : IRequestHandler<AddProductOptionCo
         product.AddOption(request.ProductOptionId, request.OptionName);
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-
     }
 }

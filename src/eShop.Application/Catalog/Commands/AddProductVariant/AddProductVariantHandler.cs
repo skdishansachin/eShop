@@ -1,9 +1,8 @@
-using MediatR;
-using eShop.Domain.Catalog;
 using eShop.Applcation.SharedKernel;
+using eShop.Domain.Catalog;
+using MediatR;
 
 namespace eShop.Applcation.Catalog.Commands.AddProductVariant;
-
 
 public sealed class AddProductVariant : IRequestHandler<AddProductVariantCommand>
 {
@@ -22,20 +21,13 @@ public sealed class AddProductVariant : IRequestHandler<AddProductVariantCommand
         if (product is null)
             throw new InvalidOperationException("Product not found.");
 
-        var existing = await _repository.FindBySkuAsync(
-            request.Sku,
-            cancellationToken);
+        var existing = await _repository.FindBySkuAsync(request.Sku, cancellationToken);
 
         if (existing is not null)
-            throw new InvalidOperationException(
-                $"SKU {request.Sku} already exists.");
+            throw new InvalidOperationException($"SKU {request.Sku} already exists.");
 
-        product.AddVariant(
-            request.Sku,
-            request.Price,
-            request.Selections);
+        product.AddVariant(request.Sku, request.Price, request.Selections);
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
     }
 }
-

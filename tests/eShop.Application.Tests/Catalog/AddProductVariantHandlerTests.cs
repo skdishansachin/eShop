@@ -40,7 +40,10 @@ public class AddProductVariantHandlerTests
 
         await _handler.Handle(command, cancellationToken);
 
-        _productRepositoryMock.Verify(r => r.FindByIdAsync(productId, cancellationToken), Times.Once);
+        _productRepositoryMock.Verify(
+            r => r.FindByIdAsync(productId, cancellationToken),
+            Times.Once
+        );
         _productRepositoryMock.Verify(r => r.FindBySkuAsync(sku, cancellationToken), Times.Once);
         _unitOfWorkMock.Verify(u => u.SaveChangesAsync(cancellationToken), Times.Once);
         Assert.Single(product.Variants);
@@ -62,12 +65,18 @@ public class AddProductVariantHandlerTests
             .Setup(r => r.FindByIdAsync(productId, cancellationToken))
             .ReturnsAsync((Product?)null); // Product not found
 
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
-            () => _handler.Handle(command, cancellationToken)
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            _handler.Handle(command, cancellationToken)
         );
         Assert.Equal("Product not found.", exception.Message);
-        _productRepositoryMock.Verify(r => r.FindByIdAsync(productId, cancellationToken), Times.Once);
-        _productRepositoryMock.Verify(r => r.FindBySkuAsync(It.IsAny<Sku>(), It.IsAny<CancellationToken>()), Times.Never);
+        _productRepositoryMock.Verify(
+            r => r.FindByIdAsync(productId, cancellationToken),
+            Times.Once
+        );
+        _productRepositoryMock.Verify(
+            r => r.FindBySkuAsync(It.IsAny<Sku>(), It.IsAny<CancellationToken>()),
+            Times.Never
+        );
         _unitOfWorkMock.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
@@ -82,7 +91,11 @@ public class AddProductVariantHandlerTests
         var cancellationToken = CancellationToken.None;
 
         var product = Product.Create(productId, "Test Product", "Description");
-        var existingProductWithSku = Product.Create(new ProductId(Guid.NewGuid()), "Another Product", "Description");
+        var existingProductWithSku = Product.Create(
+            new ProductId(Guid.NewGuid()),
+            "Another Product",
+            "Description"
+        );
 
         _productRepositoryMock
             .Setup(r => r.FindByIdAsync(productId, cancellationToken))
@@ -91,11 +104,14 @@ public class AddProductVariantHandlerTests
             .Setup(r => r.FindBySkuAsync(sku, cancellationToken))
             .ReturnsAsync(existingProductWithSku); // SKU already exists
 
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
-            () => _handler.Handle(command, cancellationToken)
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            _handler.Handle(command, cancellationToken)
         );
         Assert.Equal($"SKU {sku} already exists.", exception.Message);
-        _productRepositoryMock.Verify(r => r.FindByIdAsync(productId, cancellationToken), Times.Once);
+        _productRepositoryMock.Verify(
+            r => r.FindByIdAsync(productId, cancellationToken),
+            Times.Once
+        );
         _productRepositoryMock.Verify(r => r.FindBySkuAsync(sku, cancellationToken), Times.Once);
         _unitOfWorkMock.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
         Assert.Empty(product.Variants); // No variant should be added to the product
