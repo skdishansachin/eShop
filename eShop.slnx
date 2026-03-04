@@ -1,6 +1,7 @@
 <Solution>
   <Folder Name="/src/">
     <Project Path="src/eShop.Application/eShop.Application.csproj" />
+    <Project Path="src/eShop.Infrastructure/eShop.Infrastructure.csproj" />
   </Folder>
   <Folder Name="/src/eShop.Domain/">
     <Project Path="src/eShop.Domain/eShop.Domin.csproj" />
