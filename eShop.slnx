@@ -1,5 +1,7 @@
 <Solution>
-  <Folder Name="/src/" />
+  <Folder Name="/src/">
+    <Project Path="src/eShop.Application/eShop.Application.csproj" />
+  </Folder>
   <Folder Name="/src/eShop.Domain/">
     <Project Path="src/eShop.Domain/eShop.Domin.csproj" />
   </Folder>
