@@ -5,4 +5,7 @@
     <Project Path="src/eShop.Infrastructure/eShop.Infrastructure.csproj" />
     <Project Path="src/eShop.Domain/eShop.Domin.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/eShop.Domain.Tests/eShop.Domain.Tests.csproj" />
+  </Folder>
 </Solution>
