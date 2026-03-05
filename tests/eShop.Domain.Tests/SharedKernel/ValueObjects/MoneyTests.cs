@@ -59,8 +59,6 @@ public sealed class MoneyTests
         Assert.Throws<ArgumentException>(() => money1 - money2);
     }
 
-
-
     [Fact]
     public void MultiplicationOperator_WithDecimalFactor_ShouldReturnCorrectProduct()
     {
